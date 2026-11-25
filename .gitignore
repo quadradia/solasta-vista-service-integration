@@ -82,3 +82,6 @@ logs/
 *.CDX
 *.fpt
 *.FPT
+
+# Local build output (ready-to-copy XP package)
+dist/

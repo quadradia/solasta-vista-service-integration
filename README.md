@@ -43,6 +43,10 @@ build.cmd            :: v141_xp, the build for the XP machine -> build\v141_xp\R
 build.cmd v142       :: dev build on a PC without the XP component (Microsoft doesn't support it on XP)
 ```
 
+With the Build Tools 2019 setup on the dev PC, the `v141_xp` toolset compiles with MSVC 14.29 against the Windows 7.1A SDK and the XP-compatible static UCRT (10.0.10240), with `_USING_V110_SDK71_`. To use the original VS 2017 compiler (14.16) instead, also add the component `Microsoft.VisualStudio.Component.VC.v141.x86.x64`.
+
+`tools\export-ca-bundle.ps1 -OutFile <path>\ca-bundle.pem` builds a starter CA bundle of common public root CAs from the dev PC's Windows root store. Trim it once the real certificate chains of the token and API hosts are confirmed.
+
 The build compiles the vendored mbedTLS (`third_party/mbedtls`, 3.6.8 LTS, unmodified) as a static library. It also compiles the Event Log message table (`src/messages.mc`) with `mc.exe`.
 
 Check every build that goes to the XP machine:
