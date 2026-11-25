@@ -66,3 +66,19 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# SolastaVistaSync local files: real config, secrets, state, Vista data, test certs
+vista-sync.ini
+*.secret
+client-secret.*
+secret.txt
+*.pem
+!config/*.example.*
+work/
+logs/
+*.dbf
+*.DBF
+*.cdx
+*.CDX
+*.fpt
+*.FPT
