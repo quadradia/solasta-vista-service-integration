@@ -8,6 +8,10 @@
   public root CAs (Let's Encrypt, DigiCert, Sectigo/USERTrust, GlobalSign, Google Trust
   Services, Amazon, Microsoft). Nothing is downloaded and no server is contacted.
 
+  api.mysolasta.com chains to GlobalSign ECC Root CA - R4 and identity.nuvol9.com to ISRG Root X2
+  (checked 2026-11-26). Windows only puts a root in its store the first time it builds a chain to it,
+  so if one is reported missing, browse to that host once on this PC and run the export again.
+
   Once the real chains of the token host and the API host are confirmed, trim the bundle
   to just their roots.
 
@@ -28,6 +32,7 @@ $wanted = @(
     'CN=USERTrust ECC Certification Authority, O=The USERTRUST Network, L=Jersey City, S=New Jersey, C=US',
     'CN=GlobalSign, O=GlobalSign, OU=GlobalSign Root CA - R3',
     'CN=GlobalSign Root CA, OU=Root CA, O=GlobalSign nv-sa, C=BE',
+    'CN=GlobalSign, O=GlobalSign, OU=GlobalSign ECC Root CA - R4',
     'CN=GTS Root R1, O=Google Trust Services LLC, C=US',
     'CN=GTS Root R4, O=Google Trust Services LLC, C=US',
     'CN=Amazon Root CA 1, O=Amazon, C=US',
