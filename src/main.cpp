@@ -14,7 +14,7 @@
 #include "sync.h"
 #include "util.h"
 
-static void PrintUsage()
+static void PrintUsage(FILE* out)
 {
     fputs(
         "SolastaVistaSync - sends Vista ERP items (IPART.dbf) to the Solasta API\n"
@@ -31,7 +31,7 @@ static void PrintUsage()
         "        Run it on the machine that runs the service, then delete plain.txt.\n"
         "\n"
         "The default config is vista-sync.ini next to the .exe.\n",
-        stderr);
+        out);
 }
 
 static std::wstring FullPath(const std::wstring& p)
@@ -62,11 +62,11 @@ int wmain(int argc, wchar_t** argv)
             protectIn = argv[++i];
             protectOut = argv[++i];
         } else if (a == L"--help" || a == L"-h" || a == L"/?") {
-            PrintUsage();
+            PrintUsage(stdout);
             return 0;
         } else {
             fprintf(stderr, "Unknown argument: %s\n\n", WideToUtf8(a).c_str());
-            PrintUsage();
+            PrintUsage(stderr);
             return 2;
         }
     }
@@ -75,7 +75,7 @@ int wmain(int argc, wchar_t** argv)
     if (service || (!runOnce && !install && !uninstall && !protect)) {
         if (RunAsService(configPath)) return 0;
         if (service) return 1;
-        PrintUsage(); /* started from a console without arguments */
+        PrintUsage(stderr); /* started from a console without arguments */
         return 2;
     }
     if (protect) {
@@ -83,7 +83,7 @@ int wmain(int argc, wchar_t** argv)
             fprintf(stderr, "Error: %s\n", err.c_str());
             return 1;
         }
-        fprintf(stderr, "Wrote %s. Set ClientSecretDpapiFile to it and delete the plain-text file.\n",
+        fprintf(stdout, "Wrote %s. Set ClientSecretDpapiFile to it and delete the plain-text file.\n",
                 WideToUtf8(protectOut).c_str());
         return 0;
     }
@@ -95,7 +95,7 @@ int wmain(int argc, wchar_t** argv)
             fprintf(stderr, "Error: %s\n", err.c_str());
             return 1;
         }
-        fprintf(stderr, "Installed service %s (automatic start). Start it with: sc start %s\n",
+        fprintf(stdout, "Installed service %s (automatic start). Start it with: sc start %s\n",
                 WideToUtf8(kServiceName).c_str(), WideToUtf8(kServiceName).c_str());
         return 0;
     }
@@ -104,7 +104,7 @@ int wmain(int argc, wchar_t** argv)
             fprintf(stderr, "Error: %s\n", err.c_str());
             return 1;
         }
-        fprintf(stderr, "Removed service %s.\n", WideToUtf8(kServiceName).c_str());
+        fprintf(stdout, "Removed service %s.\n", WideToUtf8(kServiceName).c_str());
         return 0;
     }
 
@@ -115,6 +115,9 @@ int wmain(int argc, wchar_t** argv)
         return 1;
     }
     Log::Init(cfg.logDir, cfg.logRetentionDays, false, true);
+    /* --dry-run writes the JSON body to stdout. When stdout is a file or a pipe (`> dryrun.json`), keep the
+     * progress lines off it; in a plain console they can share it. */
+    if (dryRun && GetFileType(GetStdHandle(STD_OUTPUT_HANDLE)) != FILE_TYPE_CHAR) Log::SetConsoleInfoStream(stderr);
     if (!HttpGlobalInit(err)) {
         LOG_ERROR("%s", err.c_str());
         return 1;
