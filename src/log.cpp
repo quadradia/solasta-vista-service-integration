@@ -14,6 +14,7 @@ bool g_initialized = false;
 std::wstring g_dir;
 int g_retentionDays = 14;
 bool g_console = false;
+FILE* g_consoleInfo = stdout;
 HANDLE g_eventSource = NULL;
 HANDLE g_file = INVALID_HANDLE_VALUE;
 std::wstring g_fileDate; /* YYYY-MM-DD of the open file */
@@ -103,6 +104,11 @@ void Init(const std::wstring& dir, int retentionDays, bool eventLog, bool consol
     LeaveCriticalSection(&g_lock);
 }
 
+void SetConsoleInfoStream(FILE* stream)
+{
+    g_consoleInfo = stream ? stream : stdout;
+}
+
 void Shutdown()
 {
     if (!g_initialized) return;
@@ -137,8 +143,11 @@ void Write(Level level, const char* fmt, ...)
         WriteFile(g_file, line.data(), (DWORD)line.size(), &written, NULL);
     }
     if (g_console && level != Debug) {
-        fputs(line.c_str() + 11, stderr); /* skip the date on the console */
-        fflush(stderr);
+        /* Normal progress goes to stdout so PowerShell does not show it as a NativeCommandError;
+         * only warnings and errors go to stderr. */
+        FILE* out = level >= Warning ? stderr : g_consoleInfo;
+        fputs(line.c_str() + 11, out); /* skip the date on the console */
+        fflush(out);
     }
     if (g_eventSource && level >= Notice) {
         WORD type = EVENTLOG_INFORMATION_TYPE;

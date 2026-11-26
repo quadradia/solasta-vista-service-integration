@@ -1,6 +1,7 @@
 #ifndef VISTA_SYNC_LOG_H
 #define VISTA_SYNC_LOG_H
 
+#include <cstdio>
 #include <string>
 
 /* Rolling daily text log (vista-sync-YYYY-MM-DD.log, old files purged) plus the
@@ -10,9 +11,13 @@ namespace Log {
 enum Level { Debug, Info, Notice, Warning, Error };
 
 /* dir: folder for the text files (created if missing). retentionDays: files older
- * than this are deleted. eventLog: also report to the Event Log. console: echo to stderr. */
+ * than this are deleted. eventLog: also report to the Event Log. console: echo to the console (info to stdout, warnings and errors to stderr). */
 void Init(const std::wstring& dir, int retentionDays, bool eventLog, bool console);
 void Shutdown();
+
+/* Where console echo of Debug/Info/Notice lines goes (default stdout). Warnings and errors always go to
+ * stderr. --dry-run points this at stderr when stdout is redirected, so the JSON file stays clean. */
+void SetConsoleInfoStream(FILE* stream);
 
 void Write(Level level, const char* fmt, ...);
 

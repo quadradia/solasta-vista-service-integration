@@ -95,6 +95,8 @@ It checks that the exe is 32-bit x86 with OS/subsystem version 5.01. It also che
    The service runs as LocalSystem. If the Vista tables are on a network share, run it as a domain or local account that can read the share: `sc config SolastaVistaSync obj= DOMAIN\user password= ...`.
 7. Remove it with `vista-sync.exe --uninstall`.
 
+Console output: progress and success messages go to stdout, and only warnings and errors go to stderr, so Windows PowerShell shows only real problems in red (as `NativeCommandError`). The exit code is 0 on success and 1 on failure. With `--dry-run > dryrun.json` the file gets only the JSON body, and the progress lines go to stderr; in a plain console window they all show together.
+
 Logs go to `logs\vista-sync-YYYY-MM-DD.log`; old files are deleted after `RetentionDays`. Warnings, errors, service start/stop and sync summaries also go to the Application event log, source `SolastaVistaSync`.
 
 ## Configuration (`vista-sync.ini`)
